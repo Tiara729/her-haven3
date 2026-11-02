@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Her Haven</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFF0F6;--surface:#fff;--ink:#4A2040;--muted:#8A5F7E;--line:#F5CDE0;--accent:#D12C7E;--accent-ink:#fff;--shade:rgba(74,32,64,.45)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2A1426;--surface:#3A1D35;--ink:#FFE8F2;--muted:#D9A9C8;--line:#5A2E52;--accent:#FF8CC0;--accent-ink:#3A0F2A;--shade:rgba(0,0,0,.6)}}
+:root[data-theme="dark"]{--bg:#2A1426;--surface:#3A1D35;--ink:#FFE8F2;--muted:#D9A9C8;--line:#5A2E52;--accent:#FF8CC0;--accent-ink:#3A0F2A;--shade:rgba(0,0,0,.6)}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Nunito",system-ui,-apple-system,"Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+h1,h2,h3,.brand{font-family:"Fredoka","Nunito",system-ui,sans-serif;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;justify-content:space-between;padding:14px clamp(16px,4vw,48px);background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+.cartbtn{display:flex;gap:10px;align-items:center;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:10px 18px;font-weight:700}
+.cartbtn span{background:var(--accent);color:var(--accent-ink);border-radius:999px;min-width:24px;padding:0 7px;text-align:center;font-size:.85rem}
+.hero{padding:clamp(40px,8vw,96px) clamp(16px,4vw,48px) 24px;max-width:1200px;margin:0 auto}
+.hero h1{font-size:clamp(2.6rem,8vw,6rem);line-height:1;letter-spacing:-.01em;font-weight:600;max-width:12ch}
+.hero p{color:var(--muted);max-width:46ch;margin:20px 0 0;font-size:1.1rem}
+.bar{max-width:1200px;margin:24px auto 0;padding:0 clamp(16px,4vw,48px);display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.grid{max-width:1200px;margin:24px auto 64px;padding:0 clamp(16px,4vw,48px);display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:24px;overflow:hidden;display:flex;flex-direction:column}
+.tile{aspect-ratio:1/1;display:grid;place-items:center}
+.tile svg{width:58%;height:58%}
+.info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px;flex:1}
+.info h3{font-size:1.1rem;font-weight:500}
+.info small{color:var(--muted)}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:12px}
+.price{font-weight:700;font-size:1.1rem}
+.add{background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:8px 14px;font-weight:700}
+.scrim{position:fixed;inset:0;background:var(--shade);z-index:20;display:none}
+.scrim.open{display:block}
+aside{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--surface);z-index:30;display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(100%);visibility:hidden;transition:transform .25s}
+aside.open{transform:none;visibility:visible}
+@media (prefers-reduced-motion:reduce){aside,#toast{transition:none}}
+.dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.dh h2{font-size:1.5rem}
+.x{background:none;border:1px solid var(--line);border-radius:8px;padding:6px 12px}
+.body{flex:1;overflow:auto}
+.line{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.line .tile{aspect-ratio:1/1;border-radius:8px}
+.qty{display:flex;align-items:center;gap:8px;margin-top:4px}
+.qty button{width:28px;height:28px;border:1px solid var(--line);background:none;border-radius:6px}
+.sum{padding-top:14px;display:grid;gap:6px}
+.sum div{display:flex;justify-content:space-between}
+.sum .t{font-weight:700;font-size:1.2rem}
+.btn{width:100%;margin-top:14px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:14px;font-weight:700;font-size:1rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.empty{color:var(--muted);padding:32px 0}
+label{display:grid;gap:4px;margin-bottom:12px;font-weight:500}
+input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%}
+.note{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--muted);font-size:.9rem;margin-bottom:12px}
+.err{color:#C0392B;font-size:.9rem;min-height:1.2em}
+@media (prefers-color-scheme:dark){.err{color:#FF8A7A}}
+.row{flex-wrap:wrap;gap:8px}.acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%}
+.alt{background:none;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:8px 12px;font-weight:700}
+.modal{position:fixed;z-index:40;left:50%;top:50%;transform:translate(-50%,-50%);width:min(460px,calc(100% - 32px));max-height:calc(100% - 32px);overflow:auto;background:var(--surface);border-radius:24px;padding:20px;display:none}
+.modal.open{display:block}
+.mh{display:flex;gap:14px;align-items:center}.mh .tile{width:72px;border-radius:12px}
+.mlabel{margin:14px 0 6px;font-weight:700;display:block}
+.sw{display:flex;flex-wrap:wrap;gap:6px}
+.swb{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px}
+.swb[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.swb i{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid var(--line);margin-right:6px;vertical-align:-2px}
+textarea{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);width:100%;resize:vertical}
+.mrow{display:flex;gap:12px;align-items:center;margin-top:16px}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:50}
+#toast.show{opacity:1;transform:translateX(-50%)}
+footer{padding:24px clamp(16px,4vw,48px) 40px;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Her Haven</div>
+  <button class="cartbtn" id="open" aria-label="Open basket">Basket <span id="count">0</span></button>
+</header>
+<main>
+  <section class="hero">
+    <h1>Pretty little things, just for you.</h1>
+    <p>Lashes, press-on nails, makeup tools and hair essentials, all in one cute little shop. Free UK delivery on orders over £40.</p>
+  </section>
+  <div class="bar" id="chips" role="group" aria-label="Filter by category"></div>
+  <section class="grid" id="grid" aria-live="polite"></section>
+</main>
+<footer>Her Haven. Secure card payments by Stripe.</footer>
+
+<div class="scrim" id="scrim"></div>
+<div class="scrim" id="mscrim" style="z-index:35"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Customise item"></div>
+<div id="toast" role="status"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-label="Basket">
+  <div class="dh"><h2 id="dtitle">Your basket</h2><button class="x" id="close">Close</button></div>
+  <div class="body" id="dbody"></div>
+  <div id="dfoot"></div>
+</aside>
+
+<script>
+var FREE_OVER=40, SHIP=2.99;
+var P=[
+ {id:1,name:"Lash clusters",cat:"Lashes",price:2.5,color:"#FFC2DD",shape:"cluster",c:{g:[{n:"Style",v:["Fluffy","Russian","Spike","Curl"]}],n:0}},
+ {id:26,name:"Lash strips",cat:"Lashes",price:0.9,color:"#E3D4FF",shape:"lash",c:{g:[{n:"Style",v:["Cat eye","Fluffy","Natural"]},{n:"Pairs",v:["1 pair","3 pairs","5 pairs","10 pairs"],p:[0.9,1.1,2,2.3]}],n:1}},
+ {id:2,name:"Lash glue",cat:"Lashes",price:3,color:"#FFF1B8",shape:"glue",c:{g:[{n:"Size",v:["5ml","10ml","15ml"],p:[3,5,9]}],n:0}},
+ {id:28,name:"Lash bond and seal",cat:"Lashes",price:5,color:"#D6E6FF",shape:"glue"},
+ {id:3,name:"Lash tweezers",cat:"Lashes",price:0.99,color:"#C9F0DD",shape:"tweezers",c:{g:[{n:"Colour",v:["Pink","Gold","Leopard print","Black","Blue"]}],n:0}},
+ {id:27,name:"Lash brush",cat:"Lashes",price:0.5,color:"#FFD1D1",shape:"spoolie"},
+ {id:4,name:"Press-on nails",cat:"Nails",price:3,color:"#FFD1D1",shape:"nail"},
+ {id:5,name:"Nail glue",cat:"Nails",price:2,color:"#C9F0DD",shape:"glue",c:0},
+ {id:6,name:"Nail fix kit",cat:"Nails",price:8,color:"#D6E6FF",shape:"file",c:0},
+ {id:7,name:"Makeup brush set",cat:"Makeup essentials",price:2,color:"#FFC2DD",shape:"brush"},
+ {id:8,name:"Beauty blenders",cat:"Makeup essentials",price:1,color:"#FFF1B8",shape:"blender",c:{g:[{n:"Pieces",v:["1","3","5","7"],p:[1,3,5,7]}],n:0}},
+ {id:9,name:"Compact mirror",cat:"Makeup essentials",price:1.8,color:"#E3D4FF",shape:"mirror"},
+ {id:10,name:"Hair brush",cat:"Hair",price:2.3,color:"#C9F0DD",shape:"hairbrush",c:{g:[{n:"Type",v:["Paddle","Detangling","Round","Bristle"]}],n:0}},
+ {id:11,name:"Comb",cat:"Hair",price:2.3,color:"#D6E6FF",shape:"comb",c:{g:[{n:"Type",v:["Wide-tooth","Fine-tooth","Rat-tail","Detangling"]}],n:0}},
+ {id:12,name:"Claw clip",cat:"Hair",price:0.95,color:"#FFC2DD",shape:"heart"},
+ {id:13,name:"Headband",cat:"Hair",price:1,color:"#FFD1D1",shape:"headband"},
+ {id:14,name:"Hair tie set",cat:"Hair",price:5,color:"#E3D4FF",shape:"scrunchie"},
+ {id:15,name:"Satin bonnet",cat:"Hair",price:3,color:"#FFF1B8",shape:"bonnet",c:{g:[{n:"Colour",v:["Pink","Black","Red"]}],n:0}},
+ {id:16,name:"Heatless curls set",cat:"Hair",price:7,color:"#C9F0DD",shape:"curls"},
+ {id:18,name:"Wig grip band",cat:"Wig essentials",price:1.5,color:"#FFC2DD",shape:"headband"},
+ {id:20,name:"Bracelets",cat:"Bracelets",price:2,color:"#FFF1B8",shape:"beads",c:{g:[{n:"Style",v:["Beaded","Pearl","Chain"]}],n:0}},
+ {id:23,name:"Heart charm",cat:"Bracelet charms",price:0.5,color:"#FFC2DD",shape:"heart"},
+ {id:24,name:"Star charm",cat:"Bracelet charms",price:0.5,color:"#E3D4FF",shape:"star"},
+ {id:25,name:"Initial charm",cat:"Bracelet charms",price:0.5,color:"#FFF1B8",shape:"letter"}
+];
+var S={heart:'<path d="M50 78C20 56 18 34 32 28c9-4 15 1 18 7c3-6 9-11 18-7c14 6 12 28-18 50z"/>',
+scrunchie:'<circle cx="50" cy="50" r="26" fill="none" stroke="#4A2040" stroke-width="14" stroke-dasharray="9 3"/>',
+lash:'<path d="M16 62c20 14 48 14 68 0" fill="none" stroke="#4A2040" stroke-width="4"/><path d="M20 60l-6-16M32 66l-4-22M44 69l-1-26M56 69l1-26M68 66l4-22M80 60l6-16" fill="none" stroke="#4A2040" stroke-width="3" stroke-linecap="round"/>',
+glue:'<rect x="40" y="38" width="20" height="42" rx="5"/><path d="M44 38l2-14h8l2 14z"/><rect x="40" y="52" width="20" height="5" fill="#fff"/>',
+tweezers:'<path d="M30 80L52 22M70 80L52 22" fill="none" stroke="#4A2040" stroke-width="7" stroke-linecap="round"/>',
+nail:'<path d="M34 80V42a16 16 0 0 1 32 0v38z"/><path d="M42 40c0-6 5-9 9-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>',
+file:'<rect x="40" y="14" width="20" height="72" rx="10" transform="rotate(30 50 50)"/><path d="M44 34h12M44 46h12M44 58h12" stroke="#fff" stroke-width="3" transform="rotate(30 50 50)"/>',
+brush:'<rect x="46" y="48" width="8" height="36" rx="4"/><path d="M42 48c0-14 4-26 8-30c4 4 8 16 8 30z"/>',
+blender:'<ellipse cx="50" cy="54" rx="22" ry="28"/><path d="M40 40c2-6 8-10 12-10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>',
+mirror:'<circle cx="50" cy="40" r="24"/><rect x="45" y="62" width="10" height="22" rx="4"/><circle cx="50" cy="40" r="17" fill="#fff"/>',
+hairbrush:'<ellipse cx="50" cy="38" rx="22" ry="26"/><rect x="44" y="60" width="12" height="26" rx="5"/><path d="M38 28h.1M50 24h.1M62 28h.1M44 40h.1M56 40h.1" stroke="#fff" stroke-width="5" stroke-linecap="round"/>',
+comb:'<rect x="16" y="26" width="68" height="14" rx="4"/><path d="M24 42v26M34 42v26M44 42v26M54 42v26M64 42v26M74 42v26" stroke="#4A2040" stroke-width="4" stroke-linecap="round"/>',
+headband:'<path d="M16 62c0-34 20-44 34-44s34 10 34 44" fill="none" stroke="#4A2040" stroke-width="9" stroke-linecap="round"/>',
+bonnet:'<path d="M18 62c0-30 20-42 32-42s32 12 32 42c0 8-10 12-32 12s-32-4-32-12z"/><path d="M24 64c14 6 38 6 52 0" fill="none" stroke="#fff" stroke-width="3"/>',
+curls:'<path d="M30 26c36-6 36 8 0 14c36-4 36 14 0 18c36-4 36 14 0 18" fill="none" stroke="#4A2040" stroke-width="7" stroke-linecap="round"/>',
+spoolie:'<rect x="46" y="44" width="8" height="40" rx="4"/><rect x="42" y="18" width="16" height="30" rx="8"/><path d="M42 26h16M42 33h16M42 40h16" stroke="#fff" stroke-width="2"/>',
+cluster:'<path d="M22 72l-6-22M22 72l4-24M22 72l12-20M50 72l-8-28M50 72l0-30M50 72l8-28M78 72l-12-20M78 72l-4-24M78 72l6-22" fill="none" stroke="#4A2040" stroke-width="4" stroke-linecap="round"/>',
+beads:'<circle cx="78" cy="50" r="8"/><circle cx="70" cy="70" r="8"/><circle cx="50" cy="78" r="8"/><circle cx="30" cy="70" r="8"/><circle cx="22" cy="50" r="8"/><circle cx="30" cy="30" r="8"/><circle cx="50" cy="22" r="8"/><circle cx="70" cy="30" r="8"/>',
+chain:'<circle cx="38" cy="50" r="18" fill="none" stroke="#4A2040" stroke-width="6"/><circle cx="62" cy="50" r="18" fill="none" stroke="#4A2040" stroke-width="6"/>',
+star:'<path d="M50 18l9 21 23 2-17 15 5 23-20-12-20 12 5-23-17-15 23-2z"/>',
+letter:'<text x="50" y="70" font-size="56" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="600">A</text>'};
+function art(p){return '<div class="tile" style="background:'+p.color+'"><svg viewBox="0 0 100 100" fill="#4A2040" aria-hidden="true">'+S[p.shape]+'</svg></div>'}
+function gbp(n){return '£'+n.toFixed(2)}
+var cart={}, cat="All", view="cart", order=null;
+try{var saved=JSON.parse(localStorage.getItem("lp-cart")||"{}");if(saved&&typeof saved==="object")cart=saved}catch(e){}
+function persist(){try{localStorage.setItem("lp-cart",JSON.stringify(cart))}catch(e){}}
+function find(id){return P.filter(function(p){return p.id==id})[0]}
+function items(){return Object.keys(cart).map(function(k){var c=cart[k],p=c&&find(c.id);return p?{k:k,p:p,q:c.q,colour:c.colour||"",note:c.note||"",u:c.u==null?p.price:c.u}:null}).filter(Boolean)}
+function totals(){var sub=0,n=0;items().forEach(function(i){sub+=tp(i.p,i.q,i.u);n+=i.q});var ship=sub===0||sub>=FREE_OVER?0:SHIP;return{sub:sub,n:n,ship:ship,total:sub+ship}}
+var SW={Pink:"#F7A8CE",Lilac:"#CDB4F5",Black:"#222",Brown:"#7A4B32",Nude:"#E8C4A8",White:"#fff",Gold:"#D4AF37",Silver:"#C0C0C8",Red:"#D3202E",Blue:"#3B6FD8","Leopard print":"#C98E3A"};
+function tp(p,q,u){var t=(p.t||[]).concat([[1,u==null?p.price:u]]),c=[0],i,j;for(i=1;i<=q;i++){c[i]=1e9;for(j=0;j<t.length;j++)if(t[j][0]<=i)c[i]=Math.min(c[i],c[i-t[j][0]]+t[j][1])}return Math.round(c[q]*100)/100}
+function grps(p){return p.c?p.c.g:[]}
+function hasNote(p){return false}
+function mu(){var u=cur.price;grps(cur).forEach(function(g,i){if(g.p)u=g.p[ms[i]||0]});return u}
+function openM(p,btn){lastBtn=btn;cur=p;ms=[];mn="";mq=qs[p.id]||1;renderM("#mclose");document.getElementById("modal").classList.add("open");document.getElementById("mscrim").classList.add("open");document.getElementById("mclose").focus()}
+var cur=null,ms=[],mn="",mq=1,lastBtn=null,qs={};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function toast(t){var e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(function(){e.classList.remove("show")},1600)}
+function addCart(id,colour,note,q,u){var k=id+"|"+colour+"|"+note;if(cart[k])cart[k].q+=q;else cart[k]={id:id,q:q,colour:colour,note:note,u:u};persist();view="cart";renderDrawer();toast("Added to basket")}
+function modalOpen(){return document.getElementById("modal").classList.contains("open")}
+function closeM(){document.getElementById("modal").classList.remove("open");document.getElementById("mscrim").classList.remove("open");if(lastBtn)lastBtn.focus()}
+function renderM(f){
+  document.getElementById("modal").innerHTML='<div class="dh"><h2>Customise</h2><button class="x" id="mclose">Close</button></div><div class="mh">'+art(cur)+'<div><strong>'+cur.name+'</strong><div class="price">'+gbp(tp(cur,mq,mu()))+'</div></div></div>'+grps(cur).map(function(g,gi){return '<span class="mlabel">'+g.n+'</span><div class="sw">'+g.v.map(function(v,vi){return '<button class="swb" data-g="'+gi+'" data-v="'+vi+'" aria-pressed="'+((ms[gi]||0)===vi)+'">'+(SW[v]?'<i style="background:'+SW[v]+'"></i>':'')+v+'</button>'}).join("")+'</div>'}).join("")+(hasNote(cur)?'<label for="m-note" class="mlabel">Anything else? Size, length, name or initials, design</label><textarea id="m-note" rows="3" placeholder="e.g. size small, initial L, long almond shape">'+esc(mn)+'</textarea>':'')+'<div class="mrow"><div class="qty"><button id="mminus" aria-label="Fewer">−</button><span>'+mq+'</span><button id="mplus" aria-label="More">+</button></div><button class="btn" id="madd" style="margin:0;flex:1">Add to basket – '+gbp(tp(cur,mq,mu()))+'</button></div>';
+  if(f){var b=document.querySelector(f);if(b)b.focus()}
+}
+function renderShop(){
+  var cats=["All"].concat(P.map(function(p){return p.cat}).filter(function(c,i,a){return a.indexOf(c)===i}));
+  document.getElementById("chips").innerHTML=cats.map(function(c){return '<button class="chip" data-cat="'+c+'" aria-pressed="'+(c===cat)+'">'+c+'</button>'}).join("");
+  document.getElementById("grid").innerHTML=P.filter(function(p){return cat==="All"||p.cat===cat}).map(function(p){
+    return '<article class="card">'+art(p)+'<div class="info"><h3>'+p.name+'</h3><small>'+p.cat+'</small><div class="row"><span class="price" id="pr'+p.id+'"'+(grps(p).some(function(g){return g.p})?' data-f="1">From '+gbp(p.price):'>'+gbp(tp(p,qs[p.id]||1)))+'</span><span class="acts"><span class="qty" role="group" aria-label="Quantity"><button data-cq="'+p.id+',-1" aria-label="Fewer '+p.name+'">−</button><span id="cq'+p.id+'">'+(qs[p.id]||1)+'</span><button data-cq="'+p.id+',1" aria-label="More '+p.name+'">+</button></span>'+(!grps(p).length?'':'<button class="alt" data-cust="'+p.id+'" aria-label="Customise '+p.name+'">Customise</button>')+'<button class="add" data-add="'+p.id+'" aria-label="Add '+p.name+' to basket">Add</button></span></div></div></article>'}).join("");
+}
+function renderDrawer(){
+  var t=totals(), body=document.getElementById("dbody"), foot=document.getElementById("dfoot"), title=document.getElementById("dtitle");
+  document.getElementById("count").textContent=t.n;
+  if(view==="cart"){
+    title.textContent="Your basket";
+    var it=items();
+    body.innerHTML=it.length?it.map(function(i){return '<div class="line">'+art(i.p)+'<div><strong>'+i.p.name+'</strong>'+(i.colour||i.note?'<small style="display:block;color:var(--muted)">'+esc(i.colour+(i.colour&&i.note?": ":"")+i.note)+'</small>':'')+'<div class="qty"><button data-dec="'+encodeURIComponent(i.k)+'" aria-label="Remove one">−</button><span>'+i.q+'</span><button data-inc="'+encodeURIComponent(i.k)+'" aria-label="Add one">+</button></div></div><div style="text-align:right">'+gbp(tp(i.p,i.q,i.u))+(tp(i.p,i.q,i.u)<i.u*i.q-.005?'<small style="display:block;color:var(--accent)">Save '+gbp(i.u*i.q-tp(i.p,i.q,i.u))+'</small>':'')+'</div></div>'}).join(""):'<p class="empty">Your basket is empty. Add something from the shop.</p>';
+    foot.innerHTML='<div class="sum"><div><span>Subtotal</span><span>'+gbp(t.sub)+'</span></div><div><span>Delivery</span><span>'+(t.sub===0?"–":t.ship===0?"Free":gbp(t.ship))+'</span></div>'+(t.sub>0&&t.ship>0?'<small>Add '+gbp(FREE_OVER-t.sub)+' more for free delivery.</small>':'')+'<div class="t"><span>Total</span><span>'+gbp(t.total)+'</span></div></div><button class="btn" id="tocheckout"'+(t.n?'':' disabled')+'>Checkout</button>';
+  }else if(view==="checkout"){
+    title.textContent="Checkout";
+    body.innerHTML='<p class="note">Demo only: no payment is taken and nothing is sent. A real store would hand payment to Stripe here.</p><label>Full name<input id="f-name" autocomplete="name"></label><label>Email<input id="f-email" type="email" autocomplete="email"></label><label>Delivery address<input id="f-addr" autocomplete="street-address"></label><label>Postcode<input id="f-post" autocomplete="postal-code"></label><div class="err" id="err" role="alert"></div>';
+    foot.innerHTML='<div class="sum"><div class="t"><span>Total</span><span>'+gbp(t.total)+'</span></div></div><button class="btn" id="place">Place order</button><button class="x" id="back" style="width:100%;margin-top:8px;padding:10px">Back to basket</button>';
+  }else{
+    title.textContent="Order placed";
+    body.innerHTML='<p><strong>Thanks, '+order.name.replace(/[<>&]/g,"")+'.</strong></p><p>Your order <strong>'+order.ref+'</strong> for '+gbp(order.total)+' is confirmed. A confirmation would be emailed to '+order.email.replace(/[<>&]/g,"")+'.</p>';
+    foot.innerHTML='<button class="btn" id="done">Keep shopping</button>';
+  }
+}
+function openD(){document.getElementById("drawer").classList.add("open");document.getElementById("scrim").classList.add("open");renderDrawer();document.getElementById("close").focus()}
+function closeD(){document.getElementById("drawer").classList.remove("open");document.getElementById("scrim").classList.remove("open");if(view==="done")view="cart";document.getElementById("open").focus()}
+document.addEventListener("click",function(e){
+  var el=e.target.closest("button");if(!el)return;
+  if(el.dataset.cat){cat=el.dataset.cat;renderShop();return}
+  if(el.dataset.cq){var a=el.dataset.cq.split(","),qid=a[0],qn=Math.min(99,Math.max(1,(qs[qid]||1)+(+a[1])));qs[qid]=qn;document.getElementById("cq"+qid).textContent=qn;var pe=document.getElementById("pr"+qid);if(!pe.dataset.f)pe.textContent=gbp(tp(find(qid),qn));return}
+  if(el.dataset.add){var pp=find(el.dataset.add);if(pp.c&&pp.c.g.length)openM(pp,el);else addCart(pp.id,"","",qs[pp.id]||1);return}
+  if(el.dataset.cust){openM(find(el.dataset.cust),el);return}
+  if(el.dataset.g!==undefined){ms[+el.dataset.g]=+el.dataset.v;renderM('[data-g="'+el.dataset.g+'"][data-v="'+el.dataset.v+'"]');return}
+  if(el.id==="mclose"){closeM();return}
+  if(el.id==="mminus"){if(mq>1)mq--;renderM("#mminus");return}
+  if(el.id==="mplus"){mq++;renderM("#mplus");return}
+  if(el.id==="madd"){var sel=grps(cur).map(function(g,i){return g.v[ms[i]||0]}).filter(function(v){return v!=="As shown"}).join(", ");addCart(cur.id,sel,hasNote(cur)?mn.trim():"",mq,mu());closeM();return}
+  if(el.dataset.inc){var k1=decodeURIComponent(el.dataset.inc);if(cart[k1]){cart[k1].q++;persist();renderDrawer()}return}
+  if(el.dataset.dec){var k2=decodeURIComponent(el.dataset.dec);if(cart[k2]){cart[k2].q--;if(cart[k2].q<=0)delete cart[k2];persist();renderDrawer()}return}
+  if(el.id==="open"){view="cart";openD();return}
+  if(el.id==="close"){closeD();return}
+  if(el.id==="tocheckout"){startCheckout(el);return}
+  if(el.id==="back"){view="cart";renderDrawer();return}
+  if(el.id==="done"){closeD();return}
+  if(el.id==="place"){
+    var n=document.getElementById("f-name").value.trim(),m=document.getElementById("f-email").value.trim(),a=document.getElementById("f-addr").value.trim(),pc=document.getElementById("f-post").value.trim();
+    if(!n||!/^\S+@\S+\.\S+$/.test(m)||!a||!pc){document.getElementById("err").textContent="Enter your name, a valid email, address and postcode to continue.";return}
+    order={name:n,email:m,ref:"HH-"+Math.floor(10000+Math.random()*89999),total:totals().total};
+    cart={};persist();view="done";renderDrawer();
+  }
+});
+document.getElementById("scrim").addEventListener("click",closeD);
+document.getElementById("mscrim").addEventListener("click",closeM);
+document.addEventListener("input",function(e){if(e.target.id==="m-note")mn=e.target.value});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){if(modalOpen())closeM();else closeD()}});
+function startCheckout(btn){btn.disabled=true;btn.textContent="Taking you to payment...";fetch("/api/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:items().map(function(i){return{id:i.p.id,colour:i.colour,q:i.q}})})}).then(function(r){return r.json()}).then(function(d){if(d.url)location.href=d.url;else throw new Error(d.error||"Checkout failed")}).catch(function(e){btn.disabled=false;btn.textContent="Checkout";toast(e.message||"Something went wrong")})}
+if(/[?&]paid=1/.test(location.search)){cart={};persist();history.replaceState(null,"",location.pathname);setTimeout(function(){toast("Thank you! Your order is confirmed.")},300)}
+renderShop();renderDrawer();
+</script>
+</body>
+</html>
+
+// Generated from the storefront. Edit prices here AND in public/index.html.
+exports.P=[
+ {id:1,name:"Lash clusters",cat:"Lashes",price:2.5,color:"#FFC2DD",shape:"cluster",c:{g:[{n:"Style",v:["Fluffy","Russian","Spike","Curl"]}],n:0}},
+ {id:26,name:"Lash strips",cat:"Lashes",price:0.9,color:"#E3D4FF",shape:"lash",c:{g:[{n:"Style",v:["Cat eye","Fluffy","Natural"]},{n:"Pairs",v:["1 pair","3 pairs","5 pairs","10 pairs"],p:[0.9,1.1,2,2.3]}],n:1}},
+ {id:2,name:"Lash glue",cat:"Lashes",price:3,color:"#FFF1B8",shape:"glue",c:{g:[{n:"Size",v:["5ml","10ml","15ml"],p:[3,5,9]}],n:0}},
+ {id:28,name:"Lash bond and seal",cat:"Lashes",price:5,color:"#D6E6FF",shape:"glue"},
+ {id:3,name:"Lash tweezers",cat:"Lashes",price:0.99,color:"#C9F0DD",shape:"tweezers",c:{g:[{n:"Colour",v:["Pink","Gold","Leopard print","Black","Blue"]}],n:0}},
+ {id:27,name:"Lash brush",cat:"Lashes",price:0.5,color:"#FFD1D1",shape:"spoolie"},
+ {id:4,name:"Press-on nails",cat:"Nails",price:3,color:"#FFD1D1",shape:"nail"},
+ {id:5,name:"Nail glue",cat:"Nails",price:2,color:"#C9F0DD",shape:"glue",c:0},
+ {id:6,name:"Nail fix kit",cat:"Nails",price:8,color:"#D6E6FF",shape:"file",c:0},
+ {id:7,name:"Makeup brush set",cat:"Makeup essentials",price:2,color:"#FFC2DD",shape:"brush"},
+ {id:8,name:"Beauty blenders",cat:"Makeup essentials",price:1,color:"#FFF1B8",shape:"blender",c:{g:[{n:"Pieces",v:["1","3","5","7"],p:[1,3,5,7]}],n:0}},
+ {id:9,name:"Compact mirror",cat:"Makeup essentials",price:1.8,color:"#E3D4FF",shape:"mirror"},
+ {id:10,name:"Hair brush",cat:"Hair",price:2.3,color:"#C9F0DD",shape:"hairbrush",c:{g:[{n:"Type",v:["Paddle","Detangling","Round","Bristle"]}],n:0}},
+ {id:11,name:"Comb",cat:"Hair",price:2.3,color:"#D6E6FF",shape:"comb",c:{g:[{n:"Type",v:["Wide-tooth","Fine-tooth","Rat-tail","Detangling"]}],n:0}},
+ {id:12,name:"Claw clip",cat:"Hair",price:0.95,color:"#FFC2DD",shape:"heart"},
+ {id:13,name:"Headband",cat:"Hair",price:1,color:"#FFD1D1",shape:"headband"},
+ {id:14,name:"Hair tie set",cat:"Hair",price:5,color:"#E3D4FF",shape:"scrunchie"},
+ {id:15,name:"Satin bonnet",cat:"Hair",price:3,color:"#FFF1B8",shape:"bonnet",c:{g:[{n:"Colour",v:["Pink","Black","Red"]}],n:0}},
+ {id:16,name:"Heatless curls set",cat:"Hair",price:7,color:"#C9F0DD",shape:"curls"},
+ {id:18,name:"Wig grip band",cat:"Wig essentials",price:1.5,color:"#FFC2DD",shape:"headband"},
+ {id:20,name:"Bracelets",cat:"Bracelets",price:2,color:"#FFF1B8",shape:"beads",c:{g:[{n:"Style",v:["Beaded","Pearl","Chain"]}],n:0}},
+ {id:23,name:"Heart charm",cat:"Bracelet charms",price:0.5,color:"#FFC2DD",shape:"heart"},
+ {id:24,name:"Star charm",cat:"Bracelet charms",price:0.5,color:"#E3D4FF",shape:"star"},
+ {id:25,name:"Initial charm",cat:"Bracelet charms",price:0.5,color:"#FFF1B8",shape:"letter"}
+];
